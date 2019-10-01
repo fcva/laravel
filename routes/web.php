@@ -15,8 +15,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/plantilla', function () {
+    return view('layouts.app');
+});
+
 Auth::routes();
+Route::resource('/producto',"ProductoController");
+
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/productos/index', 'Producto\ProductoController@index')->name('productos.index');
+Route::get('/user/user', 'User\UserController@index')->name('user.user');
+Route::get('/producto', 'ProductoController@index')->name('producto');
