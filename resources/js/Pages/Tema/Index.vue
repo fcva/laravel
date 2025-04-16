@@ -1,17 +1,41 @@
 <script setup>
 
-import { onMounted } from "vue";
-// import Prism from "prismjs";
-// import "prismjs/themes/prism.css";
-// import "prismjs/components/prism-java";
-
+import { onMounted, ref } from "vue";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
+import RichTextEditor from "./RichTextEditor.vue";
 
 defineProps({
     message: String,
     temas: Object
 });
+
+const editando = ref({})
+const definicionesEditadas = ref({})
+
+// console.log(editando);
+
+const activarEdicion = (id, definicionActual) => {
+
+    // console.log(id, definicionActual);
+    
+    editando.value[id] = true;
+    definicionesEditadas.value[id] = definicionActual;
+}
+
+const guardarDefinicion = (id) => {
+
+    // console.log(id);
+    
+    router.put(`/tema/${id}`, {
+        definicion: definicionesEditadas.value[id]
+    }, {
+        onSuccess: () => {
+            editando.value[id] = false;
+        }
+    })
+}
+
 
 onMounted(() => {
     // Prism.highlightAll();
@@ -46,15 +70,33 @@ onMounted(() => {
                                 {{ item.nro_tema }}. {{ item.nombre }}
                             </div>
 
-                            <div class="mb-2 text-lg text-gray-800">
-                                {{ item.definicion }}
-                            </div>
-                            <!-- <td> -->
-                                <!-- <pre>
-                                    <code class="language-java" v-html="item.ejemplo_codigo"></code>
-                                </pre> -->
-                                <!-- <pre class="line-numbers overflow-auto rounded-lg bg-gray-900 text-white text-sm p-4"><code class="language-java" v-html="item.ejemplo_codigo"></code></pre> -->
-                            <!-- </td> -->
+                            <!-- modo edicion -->
+                            <template v-if="editando[item._id]">
+                                
+                                <!-- <textarea v-model="definicionesEditadas[item._id]" class="w-full p-2 border rounded resize-none" rows="3"></textarea> -->
+                                
+                                <RichTextEditor v-model="definicionesEditadas[item._id]" />
+                                
+                                <button 
+                                    class="px-4 py-1 mt-2 text-white bg-green-600 rounded hover:bg-green-700"
+                                    @click="guardarDefinicion(item._id)">
+                                    Guardar
+                                </button>
+                            </template>
+
+                            <!-- modo lectura -->
+                            <template v-else>
+                                <p class="p-2 bg-gray-100 rounded" v-html="item.definicion">
+                                </p>
+                                <button
+                                    class="px-4 py-1 mt-2 text-white bg-blue-600 rounded hover:bg-blue-700"
+                                    @click="activarEdicion(item._id, item.definicion)">
+                                    Editar
+                                </button>
+                                <!-- <button @click="console.log('ID:', item._id); activarEdicion(item._id, item.definicion)">Editar</button> -->
+
+                            </template>
+
                             <pre class="line-numbers overflow-auto rounded-lg bg-gray-900 text-white text-sm p-4"><code class="language-java" v-html="item.ejemplo_codigo"></code></pre>
                         </div>
                     </div>

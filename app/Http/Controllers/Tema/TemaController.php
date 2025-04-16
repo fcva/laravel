@@ -21,4 +21,15 @@ class TemaController extends Controller
             'temas' => TemaResource::collection($temas)
         ]);
     }
+
+    public function update(Request $request, $id) {
+
+        $tema = Tema::findOrFail($id);
+
+        $tema->definicion = $request->definicion;
+
+        $tema->save();
+
+        return back();
+    }
 }
